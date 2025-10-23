@@ -1,37 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import Button from './Button';
+import React, { useState, useEffect } from "react";
+import { Button } from "./ui/Button"; // ✅ Correct named import
 
-/**
- * Custom hook for managing tasks with localStorage persistence
- */
+// OPTIONAL: import useTheme if you actually have a theme provider
+// Otherwise, comment out these two lines
+// import { useTheme } from "@/components/theme-provider";
+
+
+// ✅ Custom hook for managing tasks with localStorage persistence
 const useLocalStorageTasks = () => {
-  // Initialize state from localStorage or with empty array
   const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem('tasks');
+    const savedTasks = localStorage.getItem("tasks");
     return savedTasks ? JSON.parse(savedTasks) : [];
   });
 
-  // Update localStorage when tasks change
   useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+    localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  // Add a new task
   const addTask = (text) => {
     if (text.trim()) {
       setTasks([
         ...tasks,
-        {
-          id: Date.now(),
-          text,
-          completed: false,
-          createdAt: new Date().toISOString(),
-        },
+        { id: Date.now(), text, completed: false, createdAt: new Date().toISOString() },
       ]);
     }
   };
 
-  // Toggle task completion status
   const toggleTask = (id) => {
     setTasks(
       tasks.map((task) =>
@@ -40,7 +34,6 @@ const useLocalStorageTasks = () => {
     );
   };
 
-  // Delete a task
   const deleteTask = (id) => {
     setTasks(tasks.filter((task) => task.id !== id));
   };
@@ -48,33 +41,37 @@ const useLocalStorageTasks = () => {
   return { tasks, addTask, toggleTask, deleteTask };
 };
 
-/**
- * TaskManager component for managing tasks
- */
+// ✅ Main TaskManager component
 const TaskManager = () => {
   const { tasks, addTask, toggleTask, deleteTask } = useLocalStorageTasks();
-  const [newTaskText, setNewTaskText] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [newTaskText, setNewTaskText] = useState("");
+  const [filter, setFilter] = useState("all");
 
-  // Filter tasks based on selected filter
+  // OPTIONAL THEME LOGIC — only if you have `useTheme` hook set up
+  // const { theme, toggleTheme } = useTheme();
+
   const filteredTasks = tasks.filter((task) => {
-    if (filter === 'active') return !task.completed;
-    if (filter === 'completed') return task.completed;
-    return true; // 'all' filter
+    if (filter === "active") return !task.completed;
+    if (filter === "completed") return task.completed;
+    return true;
   });
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     addTask(newTaskText);
-    setNewTaskText('');
+    setNewTaskText("");
   };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <h2 className="text-2xl font-bold mb-6">Task Manager</h2>
 
-      {/* Task input form */}
+      {/* ✅ Optional Theme Toggle — comment out if you haven’t made theme context */}
+      {/* <Button variant="secondary" onClick={toggleTheme} className="mb-4">
+        {theme === "light" ? "Dark Mode" : "Light Mode"}
+      </Button> */}
+
+      {/* Add task form */}
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="flex gap-2">
           <input
@@ -84,7 +81,7 @@ const TaskManager = () => {
             placeholder="Add a new task..."
             className="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600"
           />
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="default">
             Add Task
           </Button>
         </div>
@@ -93,23 +90,23 @@ const TaskManager = () => {
       {/* Filter buttons */}
       <div className="flex gap-2 mb-4">
         <Button
-          variant={filter === 'all' ? 'primary' : 'secondary'}
+          variant={filter === "all" ? "default" : "secondary"}
           size="sm"
-          onClick={() => setFilter('all')}
+          onClick={() => setFilter("all")}
         >
           All
         </Button>
         <Button
-          variant={filter === 'active' ? 'primary' : 'secondary'}
+          variant={filter === "active" ? "default" : "secondary"}
           size="sm"
-          onClick={() => setFilter('active')}
+          onClick={() => setFilter("active")}
         >
           Active
         </Button>
         <Button
-          variant={filter === 'completed' ? 'primary' : 'secondary'}
+          variant={filter === "completed" ? "default" : "secondary"}
           size="sm"
-          onClick={() => setFilter('completed')}
+          onClick={() => setFilter("completed")}
         >
           Completed
         </Button>
@@ -136,17 +133,16 @@ const TaskManager = () => {
                 />
                 <span
                   className={`${
-                    task.completed ? 'line-through text-gray-500 dark:text-gray-400' : ''
+                    task.completed ? "line-through text-gray-500 dark:text-gray-400" : ""
                   }`}
                 >
                   {task.text}
                 </span>
               </div>
               <Button
-                variant="danger"
+                variant="destructive"
                 size="sm"
                 onClick={() => deleteTask(task.id)}
-                aria-label="Delete task"
               >
                 Delete
               </Button>
@@ -157,12 +153,10 @@ const TaskManager = () => {
 
       {/* Task stats */}
       <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
-        <p>
-          {tasks.filter((task) => !task.completed).length} tasks remaining
-        </p>
+        <p>{tasks.filter((task) => !task.completed).length} tasks remaining</p>
       </div>
     </div>
   );
 };
 
-export default TaskManager; 
+export default TaskManager;
